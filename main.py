@@ -53,7 +53,7 @@ if __name__ == '__main__':
   bitly_token = bitlink_token["BITLY_TOKEN"]
 
   parser = argparse.ArgumentParser(
-    description='Описание как работать с программой'
+    description='Вставте ссылку или Битлинк'
   )
   parser.add_argument('-l','--link', help='Ссылка / Битлинк')
   args_namespace = parser.parse_args()
