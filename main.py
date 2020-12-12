@@ -12,10 +12,13 @@ def create_short_link(bitly_token, long_url):
   }
 
   response = requests.post(url, headers=headers, json=payload)
-  bitlink = response.json()['link']
-  
   response.raise_for_status()
+  
+  bitlink = response.json()['link']
+  if 'error' in bitlink:
+    raise requests.exceptions.HTTPError(bitlink['error'])
   return bitlink
+
 
 
 
@@ -49,26 +52,25 @@ def is_bitlink(bitly_token, url):
   
 
 if __name__ == '__main__':
-  bitlink_token= dotenv_values(find_dotenv(filename='.env'))
-  bitly_token = bitlink_token["BITLY_TOKEN"]
-
+  load_dotenv()
+  bitly_token = os.getenv("BITLY_TOKEN")
   parser = argparse.ArgumentParser(
     description='Вставте ссылку или Битлинк'
   )
   parser.add_argument('-l','--link', help='Ссылка / Битлинк')
   args_namespace = parser.parse_args()
-  args_link = args_namespace.link
+  
   
   
 
   try:
-    if is_bitlink(bitly_token, args_link):
-      clicks_count = count_clicks(bitly_token, args_link)
+    if is_bitlink(bitly_token, args_namespace.link):
+      clicks_count = count_clicks(bitly_token, args_namespace.link)
       print('На данную ссылку кликнули:', clicks_count, 'раз')
   except requests.exceptions.HTTPError:    
     try:
-      bitlink = urlparse(create_short_link(bitly_token, args_link))
-      print('Битлинк создан:', create_short_link(bitly_token, args_link))
+      bitlink = urlparse(create_short_link(bitly_token, args_namespace.link))
+      print('Битлинк создан:', create_short_link(bitly_token, args_namespace.link))
     except KeyError as error:
       print("Cant create bitlink: {0}".format(error))
   
